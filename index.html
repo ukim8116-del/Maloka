@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كل سنة وأنتي جميلة يا ملوكا</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Dancing+Script:wght@700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #1a0000, #330000, #1a0000);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            text-align: center;
+        }
+
+        #login-screen {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px 20px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(15px);
+            margin-top: 20vh;
+            width: 90%;
+            max-width: 400px;
+            z-index: 10;
+        }
+
+        h1 { font-family: 'Dancing Script', cursive; font-size: 2.5em; color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+        input { padding: 12px; font-size: 1.1em; border-radius: 10px; border: none; width: 80%; margin-bottom: 15px; text-align: center; outline: none; }
+        button { padding: 10px 40px; font-size: 1.2em; background: #ff4757; color: white; border: none; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #ff6b81; transform: scale(1.05); }
+
+        #content-screen { display: none; width: 100%; padding-bottom: 50px; }
+        
+        /* الجملة الجديدة */
+        .greeting-text {
+            font-size: 2em;
+            padding: 30px 10px;
+            color: #ffd700;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .gallery { display: flex; justify-content: center; flex-wrap: wrap; gap: 40px; padding: 20px; }
+        
+        .photo-card {
+            background: white; padding: 12px 12px 35px 12px;
+            box-shadow: 5px 10px 20px rgba(0,0,0,0.5);
+            position: relative; width: 240px;
+            transition: 0.3s;
+        }
+        .photo-card:hover { transform: scale(1.05) rotate(0deg) !important; z-index: 5; }
+        .photo-card img { width: 100%; height: 280px; object-fit: cover; }
+        
+        .pin { width: 15px; height: 15px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ff4757, #b30000); position: absolute; top: -7px; left: 50%; transform: translateX(-50%); }
+
+        /* تدوير عشوائي خفيف للصور */
+        .photo-card:nth-child(even) { transform: rotate(3deg); }
+        .photo-card:nth-child(odd) { transform: rotate(-3deg); }
+
+        /* أنيميشن العناصر المتساقطة */
+        .falling {
+            position: fixed; top: -20px;
+            pointer-events: none; z-index: 1;
+            animation: fall linear forwards;
+        }
+        @keyframes fall { to { transform: translateY(105vh) translateX(var(--x-end)); } }
+
+        @media (max-width: 600px) {
+            .photo-card { width: 85%; }
+            .greeting-text { font-size: 1.5em; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <h1>Happy New Year Maloka</h1>
+        <p>اكتبي الباسورد عشان تشوفي المفاجأة 💖</p>
+        <input type="password" id="passwordInput" placeholder="الباسورد هنا">
+        <br>
+        <button onclick="checkPassword()">دخول</button>
+        <p id="errorMsg" style="display:none; color:#ff6b6b; margin-top:10px;">انتي مش ملوكا الحقيقية! 🤨</p>
+    </div>
+
+    <div id="content-screen">
+        <div class="greeting-text">كل سنة وأنتي جميلة يا ملوكا ❤️✨</div>
+        <div class="gallery" id="imageGallery"></div>
+        
+        <audio id="bgMusic" loop>
+            <source src="https://www.bensound.com/bensound-music/bensound-love.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script>
+        const correctPassword = "154110"; 
+        const malokaImages = [
+            "https://i.postimg.cc/d06VSXqz/IMG-20251109-WA0204.jpg",
+            "https://i.postimg.cc/Jz1ncM8T/20251201-155409.jpg",
+            "https://i.postimg.cc/CL4MKX8n/03c332a8-ca2d-4105-8720-9d4af62f3e98.jpg",
+            "https://i.postimg.cc/nz7pfPZf/52973724-fee2-434a-838c-df1b01e49535.jpg",
+            "https://i.postimg.cc/7L8KQsBs/IMG-20251206-WA0006.jpg"
+        ];
+
+        function checkPassword() {
+            const input = document.getElementById("passwordInput").value;
+            const music = document.getElementById("bgMusic");
+
+            if(input === correctPassword) {
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("content-screen").style.display = "block";
+                music.play();
+                loadImages();
+                startFallingEffect();
+            } else {
+                document.getElementById("errorMsg").style.display = "block";
+            }
+        }
+
+        function loadImages() {
+            const gallery = document.getElementById("imageGallery");
+            malokaImages.forEach((src) => {
+                const card = document.createElement("div");
+                card.className = "photo-card";
+                card.innerHTML = `<div class="pin"></div><img src="${src}">`;
+                gallery.appendChild(card);
+            });
+        }
+
+        function startFallingEffect() {
+            const elements = ['❤️', '❄️', '✨'];
+            setInterval(() => {
+                const item = document.createElement('div');
+                item.className = 'falling';
+                item.innerHTML = elements[Math.floor(Math.random() * elements.length)];
+                item.style.left = Math.random() * 100 + 'vw';
+                item.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                item.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                item.style.opacity = Math.random();
+                item.style.setProperty('--x-end', (Math.random() - 0.5) * 100 + 'px');
+                document.body.appendChild(item);
+                setTimeout(() => item.remove(), 7000);
+            }, 250);
+        }
+    </script>
+</body>
+</html>
